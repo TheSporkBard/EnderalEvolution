@@ -1,13 +1,13 @@
-name: Enderal smoke test
+name: Enderal integration build
 
 on:
   push:
     branches:
-      - enderal/step3-smoke-test
+      - build
   workflow_dispatch:
 
 concurrency:
-  group: enderal-smoke-${{ github.ref }}
+  group: enderal-integration-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -17,3 +17,9 @@ jobs:
       build-mode: releasedbg
       upload-build-for-next-job: true
       enderal-build: true
+
+  linux:
+    uses: ./.github/workflows/linux.yml
+    with:
+      build-mode: releasedbg
+      upload-build-for-next-job: true
