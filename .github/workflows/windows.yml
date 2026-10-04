@@ -18,6 +18,14 @@ on:
         required: false
         type: boolean
         default: false
+      enderal-build:
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: windows-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   BUILD_MODE: ${{ inputs.build-mode || 'releasedbg' }}
@@ -121,7 +129,12 @@ jobs:
             cp -r GameFiles/Skyrim/SkyrimTogetherRebornBehaviors str-build/
             cp GameFiles/Enderal/SkyrimTogether.esp str-build/
           else
+            if [ "${{ inputs.enderal-build }}" = "true" ]; then
+            cp -r GameFiles/Skyrim/SkyrimTogetherRebornBehaviors str-build/
+            cp GameFiles/Enderal/SkyrimTogether.esp str-build/
+          else
             cp -r GameFiles/Skyrim/* str-build/
+          fi
           fi
 
       - name: Remove unnecessary build files, keep .pdb
