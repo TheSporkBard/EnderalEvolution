@@ -1,9 +1,6 @@
 name: Build linux
 
 on:
-  push:
-    branches:
-      - master
   workflow_call:
     inputs:
       build-mode:
@@ -14,10 +11,6 @@ on:
         required: false
         type: boolean
         default: false
-
-concurrency:
-  group: linux-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 env:
   BUILD_MODE: ${{ inputs.build-mode || 'releasedbg' }}
