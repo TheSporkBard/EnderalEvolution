@@ -1,7 +1,6 @@
 name: Build windows
 
 on:
-  pull_request:
   push:
     branches:
       - master
@@ -12,6 +11,10 @@ on:
         type: string
         default: releasedbg
       upload-build-for-next-job:
+        required: false
+        type: boolean
+        default: false
+      enderal-build:
         required: false
         type: boolean
         default: false
@@ -114,7 +117,12 @@ jobs:
         run: |
           mkdir -p str-build/SkyrimTogetherReborn str-pdb
           mv "$STR_BUILD_DIR"/* str-build/SkyrimTogetherReborn/
-          cp -r GameFiles/Skyrim/* str-build/
+          if [ "${{ inputs.enderal-build }}" = "true" ]; then
+            cp -r GameFiles/Skyrim/SkyrimTogetherRebornBehaviors str-build/
+            cp GameFiles/Enderal/SkyrimTogether.esp str-build/
+          else
+            cp -r GameFiles/Skyrim/* str-build/
+          fi
 
       - name: Remove unnecessary build files, keep .pdb
         if: ${{ inputs.upload-build-for-next-job }}
