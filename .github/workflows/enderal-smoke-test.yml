@@ -1,0 +1,14 @@
+name: Enderal smoke test
+
+on:
+  push:
+    branches:
+      - enderal/step3-smoke-test
+  workflow_dispatch:
+
+jobs:
+  windows:
+    uses: ./.github/workflows/windows.yml
+    with:
+      build-mode: releasedbg
+      upload-build-for-next-job: true
