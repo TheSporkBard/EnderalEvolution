@@ -1,0 +1,25 @@
+name: Enderal integration build
+
+on:
+  push:
+    branches:
+      - build
+  workflow_dispatch:
+
+concurrency:
+  group: enderal-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    uses: ./.github/workflows/windows.yml
+    with:
+      build-mode: releasedbg
+      upload-build-for-next-job: true
+      enderal-build: true
+
+  linux:
+    uses: ./.github/workflows/linux.yml
+    with:
+      build-mode: releasedbg
+      upload-build-for-next-job: true
