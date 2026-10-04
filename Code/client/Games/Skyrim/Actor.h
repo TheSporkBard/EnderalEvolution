@@ -46,7 +46,7 @@ struct Actor : TESObjectREFR
     virtual void SetWeaponDrawn(bool aDraw);
     virtual void sub_A7();
     virtual void sub_A8();
-    virtual void SetPosition(const NiPoint3& acPoint, bool aSyncHavok = true);
+    virtual void SetPosition(const NiPoint3& acPoint, bool aUpdateCharController);
     virtual void sub_AA();
     virtual void Resurrect(bool aResetInventory);
     virtual void sub_AC();
@@ -197,6 +197,9 @@ struct Actor : TESObjectREFR
     MagicEquipment GetMagicEquipment() const noexcept;
     Inventory GetEquipment() const noexcept;
     int32_t GetGoldAmount() const noexcept;
+    // Returns the engine-recorded static leveled pick, or nullptr if unavailable.
+    // Changing baseForm directly does not update this record.
+    TESNPC* GetLeveledPick() const noexcept;
     uint16_t GetLevel() const noexcept;
     Factions GetFactions() const noexcept;
     ActorValues GetEssentialActorValues() const noexcept;
@@ -207,15 +210,12 @@ struct Actor : TESObjectREFR
     [[nodiscard]] Actor* GetCombatTarget() const noexcept;
     [[nodiscard]] bool HasPerk(uint32_t aPerkFormId) const noexcept;
     [[nodiscard]] uint8_t GetPerkRank(uint32_t aPerkFormId) const noexcept;
-    [[nodiscard]] bool IsWearingBodyPiece() const noexcept;
-    [[nodiscard]] bool ShouldWearBodyPiece() const noexcept;
     [[nodiscard]] bool IsVampireLord() const noexcept;
     [[nodiscard]] bool IsTalking() noexcept;
     [[nodiscard]] bool IsInScene() noexcept;
     [[nodiscard]] bool IsInDialogueWithPlayer() noexcept;
     [[nodiscard]] float GetVoiceRecoveryTime() noexcept;
     [[nodiscard]] bool IsSpeakingInScene();
-
 
     // Setters
     void SetSpeed(float aSpeed) noexcept;
