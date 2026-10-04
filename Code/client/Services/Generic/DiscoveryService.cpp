@@ -299,13 +299,10 @@ BSTEventResult DiscoveryService::OnEvent(const TESLoadGameEvent*, const EventDis
     spdlog::info("Finished loading, triggering visit cell");
 
 #if (IS_MASTER)
-    if (!IsDefaultModlist(ModManager::Get()->mods))
-    {
-        ConnectionErrorEvent errorEvent{};
-        errorEvent.ErrorDetail = "{\"error\": \"non_default_install\"}";
-
-        m_world.GetRunner().Trigger(errorEvent);
-    }
+    // Enderal uses a different mandatory master/plugin set than vanilla Skyrim.
+    // Do not apply Skyrim Together's exact vanilla modlist check on the
+    // Enderal smoke-test target. Server-side ModPolicy can still enforce
+    // matching load orders when enabled.
 #endif
 
     VisitCell(true);
