@@ -6,6 +6,7 @@
 #include <DefaultObjectManager.h>
 #include <Forms/TESNPC.h>
 #include <Forms/TESFaction.h>
+#include <Forms/TESQuest.h>
 #include <Components/TESActorBaseData.h>
 #include <ExtraData/ExtraFactionChanges.h>
 #include <ExtraData/ExtraLeveledCreature.h>
@@ -1207,26 +1208,59 @@ void TP_MAKE_THISCALL(HookUnequipObject, Actor, void* apUnk1, TESBoundObject* ap
     TiltedPhoques::ThisCall(RealUnequipObject, apThis, apUnk1, apObject, aUnk2, apUnk3);
 }
 
-TP_THIS_FUNCTION(TSpeakSoundFunction, bool, Actor, const char* apName, uint32_t* a3, uint32_t a4, uint32_t a5, uint32_t a6, uint64_t a7, uint64_t a8, uint64_t a9, bool a10, uint64_t a11, bool a12, bool a13, bool a14);
+TP_THIS_FUNCTION(TSpeakSoundFunction, float, Actor, const char* apName, uint32_t* a3, uint32_t a4, uint32_t a5, uint32_t a6, uint64_t a7, uint64_t a8, uint64_t a9, bool a10, uint64_t a11, bool a12, bool a13, bool a14);
 static TSpeakSoundFunction* RealSpeakSoundFunction = nullptr;
 
-bool TP_MAKE_THISCALL(HookSpeakSoundFunction, Actor, const char* apName, uint32_t* a3, uint32_t a4, uint32_t a5, uint32_t a6, uint64_t a7, uint64_t a8, uint64_t a9, bool a10, uint64_t a11, bool a12, bool a13, bool a14)
+float TP_MAKE_THISCALL(HookSpeakSoundFunction, Actor, const char* apName, uint32_t* a3, uint32_t a4, uint32_t a5, uint32_t a6, uint64_t a7, uint64_t a8, uint64_t a9, bool a10, uint64_t a11, bool a12, bool a13, bool a14)
 {
     spdlog::debug("a3: {:X}, a4: {}, a5: {}, a6: {}, a7: {}, a8: {:X}, a9: {:X}, a10: {}, a11: {:X}, a12: {}, a13: {}, a14: {}", (uint64_t)a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
 
-    // The player having the conversation may not own this NPC. Ambient
-    // speech still comes only from the actor's simulation owner.
-    if (apThis->GetExtension()->IsLocal() || MenuTopicManager::IsPlayerDialogueSpeaker(apThis))
-        World::Get().GetRunner().Trigger(DialogueEvent(apThis->formID, apName));
+    World::Get().GetRunner().Trigger(DialogueEvent(apThis->formID, apName));
 
     return TiltedPhoques::ThisCall(RealSpeakSoundFunction, apThis, apName, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
 }
 
-void Actor::SpeakSound(const char* pFile)
+float Actor::SpeakSound(const char* pFile)
 {
     uint32_t handle[3]{};
     handle[0] = -1;
-    TiltedPhoques::ThisCall(RealSpeakSoundFunction, this, pFile, handle, 0, 0x32, 0, 0, 0, 0, 0, 0, 0, 1, 1);
+    return TiltedPhoques::ThisCall(RealSpeakSoundFunction, this, pFile, handle, 0, 0x32, 0, 0, 0, 0, 0, 0, 0, 1, 1);
+}
+
+bool Actor::IsTalking() noexcept
+{
+    TP_THIS_FUNCTION(TIsTalking, bool, Actor);
+    POINTER_SKYRIMSE(TIsTalking, s_IsTalking, 37266);
+    return TiltedPhoques::ThisCall(s_IsTalking, this);
+}
+
+bool Actor::IsInScene() noexcept
+{
+    return (flags1 & ActorBoolBits::kHasSceneExtra) != 0;
+}
+
+bool Actor::IsInDialogueWithPlayer() noexcept
+{
+    using ObjectReference = TESObjectREFR;
+    PAPYRUS_FUNCTION(bool, ObjectReference, IsInDialogueWithPlayer);
+    return s_pIsInDialogueWithPlayer(this);
+}
+
+float Actor::GetVoiceRecoveryTime() noexcept
+{
+    return fVoiceTimer;
+}
+
+bool Actor::IsSpeakingInScene()
+{
+    const bool isSpeakingInScene = IsInScene() && GetVoiceRecoveryTime() > 0.0f;
+    const bool isTalking = IsTalking();
+    const bool isLeader = World::Get().GetPartyService().IsLeader();
+
+    spdlog::debug(__FUNCTION__ ": isSpeakingInScene {}, isTalking {}, voiceRecoveryTime {}, isLeader {}, formId {:X}, name {}",
+                  isSpeakingInScene, isTalking, GetVoiceRecoveryTime(), isLeader, formID, baseForm->GetName());
+
+    return isSpeakingInScene;
 }
 
 char TP_MAKE_THISCALL(HookActorProcess, Actor, float aDeltaTime)

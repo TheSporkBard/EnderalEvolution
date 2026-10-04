@@ -17,10 +17,10 @@ struct TargetConfig
 
 // clang-format off
 
-static constexpr TargetConfig CurrentTarget{ L"Skyrim Special Edition", 489830, 0x40000000 };
+static constexpr TargetConfig CurrentTarget{ L"Enderal: Forgotten Stories (Special Edition)", 976620, 0x40000000 };
 #define TARGET_NAME L"SkyrimSE"
 #define TARGET_NAME_A "SkyrimSE"
-#define PRODUCT_NAME L"Skyrim Together"
-#define SHORT_NAME L"Skyrim Special Edition"
+#define PRODUCT_NAME L"Enderal Together"
+#define SHORT_NAME L"Enderal Special Edition"
 
 // clang-format on
