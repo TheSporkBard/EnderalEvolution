@@ -20,6 +20,10 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: windows-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   BUILD_MODE: ${{ inputs.build-mode || 'releasedbg' }}
 
@@ -31,7 +35,7 @@ jobs:
         arch: [x64]
 
     runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !(github.event_name == 'pull_request' && github.head_ref == 'enderal/step3-smoke-test')"
     defaults:
       run:
         shell: bash

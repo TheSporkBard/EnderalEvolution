@@ -6,6 +6,10 @@ on:
       - enderal/step3-smoke-test
   workflow_dispatch:
 
+concurrency:
+  group: enderal-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   windows:
     uses: ./.github/workflows/windows.yml
